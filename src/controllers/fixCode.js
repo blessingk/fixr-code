@@ -27,6 +27,6 @@ export const fixCode = async (req, res) => {
   res.json({
     eslint_output: results,
     eslint_formatted_results: resultText,
-    fixed_code: JSON.parse(fixedCode.data.cleanedCode.content[0].text).code
+    fixed_code: fixedCode.data.cleanedCode.content[0].text
   })
 };
