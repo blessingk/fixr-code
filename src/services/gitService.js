@@ -1,6 +1,7 @@
 import simpleGit from 'simple-git';
 import { Octokit } from '@octokit/rest';
 import { promises as fs } from 'fs';
+import { Buffer } from 'buffer';
 import * as path from 'path';
 import { exec } from 'child_process';
 export const makeChanges = async (owner, repo, baseBranch, featureBranch, codeChanges, commitMessage, githubToken) => {
@@ -93,4 +94,24 @@ const createAndSwitchBranch = async (branchName, git) => {
         console.error(`Failed to create or switch to branch: ${error}`);
         throw error;
     }
+};
+
+export const readFileFromGitHub = async (
+  owner,
+  repo,
+  filePath,
+  githubToken
+) => {
+  const octokit = new Octokit({ auth: githubToken });
+
+  try {
+    const response = await octokit.repos.getContent({
+      owner,
+      repo,
+      path: filePath,
+    });
+    return Buffer.from(response.data.content, "base64").toString("utf8"); 
+  } catch (error) {
+    throw new Error(`Failed to read file from GitHub: ${error.message}`);
+  }
 };
