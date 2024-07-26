@@ -1,0 +1,1 @@
+# fixr-eslint-sonarlint-validation
