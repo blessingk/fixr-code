@@ -4,6 +4,15 @@ import { promises as fs } from 'fs';
 import { Buffer } from 'buffer';
 import * as path from 'path';
 import { exec } from 'child_process';
+
+const removeWrappingQuotes = (content) => {
+    if ((content.startsWith('"') && content.endsWith('"')) || 
+        (content.startsWith('`') && content.endsWith('`'))) {
+        return content.slice(1, -1);
+    }
+    return content;
+};
+
 export const makeChanges = async (owner, repo, baseBranch, featureBranch, codeChanges, commitMessage, githubToken) => {
     const git = simpleGit({
         config: [
@@ -30,7 +39,10 @@ export const makeChanges = async (owner, repo, baseBranch, featureBranch, codeCh
         for (const change of codeChanges) {
             const filePath = path.join(repoDir, change.filePath);
             await fs.mkdir(path.dirname(filePath), { recursive: true });
-            await fs.writeFile(filePath, change.content, 'utf8');
+            // Usage example:
+            const cleanedContent = removeWrappingQuotes(change.content);
+            await fs.writeFile(filePath, cleanedContent, 'utf8');
+            // await fs.writeFile(filePath, change.content, 'utf8');
             const fileContent = await fs.readFile(filePath, 'utf8');
             if (fileContent === change.content) {
                 console.log(`Changes applied successfully to ${filePath}`);
